@@ -1,0 +1,499 @@
+/* Global Resets and Base Styles */
+:root {
+    --primary-color: #00A1FF; /* Brighter blue for dark mode accents */
+    --primary-color-rgb: 0, 161, 255;
+    --secondary-color: #90A4AE; /* Lighter gray for secondary text */
+    
+    /* Dark Theme Palette */
+    --background-color: #0F172A; /* Deep dark blue (slate-900) */
+    --card-background-color: #1E293B; /* Darker slate blue (slate-800) */
+    --text-color: #CBD5E1; /* Light gray for text (slate-300) */
+    --heading-color: #F1F5F9; /* Off-white for headings (slate-100) */
+    --border-color: #334155; /* Medium dark blue-gray for borders (slate-700) */
+    --subtle-border-color: rgba(203, 213, 225, 0.1); /* slate-300 with alpha */
+    
+    --shadow-color-soft: rgba(0, 0, 0, 0.2); /* Darker shadows for depth */
+    --shadow-color-medium: rgba(0, 0, 0, 0.3);
+
+    --code-background-color: #0A0F1A; /* Even darker for code blocks (slate-950) */
+    --code-text-color: #94A3B8; /* Gray for code text (slate-400) */
+
+    --font-family-monospace-stylish: "Fira Code VFL", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --font-family-sans-serif: var(--font-family-monospace-stylish); /* Using monospace as main font */
+    --font-family-monospace: var(--font-family-monospace-stylish); /* Explicit monospace */
+
+    --border-radius-small: 6px;
+    --border-radius-medium: 10px;
+    --border-radius-large: 16px;
+
+    --text-block-max-width: 720px;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-family-sans-serif);
+    line-height: 1.7; 
+    color: var(--text-color);
+    background-color: var(--background-color);
+    display: flex;
+    justify-content: center;
+    padding: 28px 18px;
+}
+
+#root {
+    width: 100%;
+    max-width: 1150px; 
+    margin: 0 auto;
+    background-color: var(--card-background-color);
+    box-shadow: 0 10px 30px var(--shadow-color-soft), 0 4px 12px var(--shadow-color-medium);
+    border-radius: var(--border-radius-large);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--heading-color);
+    margin-bottom: 0.9em;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+h1 { font-size: 2.3rem; font-weight: 700; }
+h2 { font-size: 1.9rem; margin-top: 2.8rem; } 
+h3 { font-size: 1.5rem; margin-top: 2.2rem; }
+h4 { font-size: 1.18rem; margin-top: 1.6rem; color: var(--heading-color); font-weight: 600;}
+h5 { font-size: 1.05rem; margin-top: 1.4rem; color: var(--heading-color); font-weight: 500;}
+h6 { font-size: 0.95rem; margin-top: 1.2rem; color: var(--secondary-color); font-weight: 500;}
+
+
+p {
+    margin-bottom: 1.3em;
+    color: var(--text-color);
+}
+.centered-text-block {
+    max-width: var(--text-block-max-width);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Header */
+.app-header {
+    background-color: var(--card-background-color); /* Or slightly different dark shade */
+    color: var(--heading-color);
+    padding: 2rem 2.8rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.app-header h1 {
+    color: var(--heading-color);
+    margin-bottom: 0.3rem;
+    font-size: 2.1rem;
+}
+
+.app-header p {
+    font-size: 1.1rem;
+    color: var(--secondary-color);
+    margin-bottom: 0;
+}
+
+/* Main Content Area */
+.main-content {
+    padding: 2.8rem;
+}
+
+/* Sections */
+.section {
+    margin-bottom: 3.5rem;
+    padding: 0;
+}
+.section:last-child {
+    margin-bottom: 0;
+}
+
+.section-title {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.7rem;
+    display: block;
+    margin-bottom: 2.2rem;
+    font-weight: 600;
+    text-align: center; 
+}
+.section-intro {
+    font-size: 1.05rem;
+    color: var(--secondary-color);
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    padding: 2rem 0 1rem 0; 
+    border: none;
+}
+.hero-section .section-title { 
+    border-bottom: none;
+}
+
+.hero-section p {
+    font-size: 1.15rem; 
+    max-width: var(--text-block-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    color: var(--secondary-color);
+}
+
+/* Features Section */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.2rem;
+}
+
+.feature-card {
+    background-color: #273247; /* Slightly lighter than card-bg for cards within sections */
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-medium);
+    padding: 2rem;
+    box-shadow: 0 3px 7px var(--shadow-color-soft);
+    transition: transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 12px var(--shadow-color-medium);
+    border-color: rgba(var(--primary-color-rgb), 0.7);
+}
+
+.feature-card h3 {
+    color: var(--primary-color); 
+    margin-top: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+.feature-card p {
+    font-size: 0.98rem;
+    color: var(--secondary-color);
+    line-height: 1.6;
+}
+
+/* Business Cases Placeholder */
+.business-cases-placeholder {
+    color: var(--secondary-color);
+    text-align: center;
+    padding: 2.8rem;
+    border: 1px dashed var(--border-color);
+    border-radius: var(--border-radius-medium);
+    background-color: rgba(var(--primary-color-rgb), 0.05); /* Subtle primary color hint */
+}
+.business-cases-placeholder em {
+    font-style: normal;
+}
+
+
+/* Algorithmic Deep Dive & Strategic Areas Common Styles */
+.algorithmic-deep-dive .deep-dive-category,
+.strategic-areas .strategic-area-category,
+.technical-implementation-guide .technical-major-section {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.algorithmic-deep-dive .deep-dive-category:last-child,
+.strategic-areas .strategic-area-category:last-child,
+.technical-implementation-guide .technical-major-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.algorithmic-deep-dive h3, 
+.strategic-areas h3,
+.technical-implementation-guide h3 { /* Category Title / Major Section Title */
+    color: var(--heading-color);
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+    text-align: left; 
+}
+.algorithmic-deep-dive .category-summary,
+.strategic-areas .focus-areas-summary p {
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+    color: var(--secondary-color);
+}
+.strategic-areas .focus-areas-summary {
+    margin-bottom: 1.8rem;
+}
+.strategic-areas .focus-areas-summary h4 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: var(--heading-color);
+}
+.strategic-areas .focus-areas-summary em {
+    font-style: italic;
+    font-size: 0.95rem;
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--secondary-color);
+}
+
+
+.algorithms-list h4 { 
+    font-size: 1.15rem;
+    color: var(--heading-color);
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    margin-top: 0.5rem;
+}
+.algorithms-list ul {
+    list-style: none;
+    padding-left: 0;
+}
+.algorithms-list li {
+    margin-bottom: 1.8rem;
+    padding: 1.5rem;
+    background-color: var(--card-background-color); /* Use main card bg for these items */
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    border-left: 4px solid rgba(var(--primary-color-rgb), 0.8);
+    box-shadow: 0 2px 5px var(--shadow-color-soft);
+}
+.algorithms-list .algorithm-name {
+    color: var(--primary-color); 
+    font-weight: 600;
+}
+
+/* Technical Implementation Guide Specifics */
+.technical-implementation-guide .technical-major-section h3 { /* e.g. 1. Core Architecture... */
+    margin-bottom: 1.5rem; /* More space under major section titles */
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--subtle-border-color);
+}
+.technical-implementation-guide .technical-item-level-0 > h4, /* e.g. 1.1 Request Processing... */
+.technical-implementation-guide .technical-item-level-0 > h5,
+.technical-implementation-guide .technical-item-level-1 > h5,
+.technical-implementation-guide .technical-item-level-1 > h6 {
+    color: var(--primary-color); /* Highlight these sub-titles */
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+}
+.technical-item-description {
+    color: var(--secondary-color);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+.technical-major-section .technical-item-level-0 {
+    padding-left: 1rem; /* Indent items under major sections */
+    margin-bottom: 2rem;
+}
+.technical-major-section .technical-item-level-1 {
+    padding-left: 1.5rem; /* Further indent sub-items */
+    margin-top: 1rem;
+}
+
+
+/* Code Snippet Styling */
+.code-snippet-container {
+    margin-top: 1.2rem;
+    margin-bottom: 1.5rem; /* Added margin for spacing */
+}
+.snippet-label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+}
+.code-snippet {
+    background-color: var(--code-background-color);
+    color: var(--code-text-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    padding: 1.2rem;
+    overflow-x: auto;
+    font-family: var(--font-family-monospace);
+    font-size: 0.9em;
+    white-space: pre;
+    line-height: 1.55;
+}
+
+.code-snippet code {
+    font-family: inherit;
+    color: inherit; /* Let Prism.js handle specific token colors */
+    background-color: transparent;
+    padding: 0;
+    font-size: inherit;
+}
+
+
+/* Portfolio Enhancements Table */
+.portfolio-enhancements {
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+}
+.portfolio-enhancements h3 {
+    text-align: center; 
+}
+.enhancements-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 5px var(--shadow-color-soft);
+    border-radius: var(--border-radius-small);
+    overflow: hidden; 
+    border: 1px solid var(--border-color);
+
+}
+.enhancements-table th,
+.enhancements-table td {
+    border: 1px solid var(--border-color);
+    padding: 0.9rem 1.1rem;
+    text-align: left;
+    vertical-align: top;
+}
+.enhancements-table th {
+    background-color: #273247; /* Darker header for table */
+    color: var(--heading-color);
+    font-weight: 600;
+}
+.enhancements-table td {
+    background-color: var(--card-background-color);
+}
+.enhancements-table tr:nth-child(even) td {
+    background-color: #273247; /* Slightly different for even rows */
+}
+
+
+/* Final Tips List */
+.final-tips {
+    margin-top: 2.5rem;
+}
+.final-tips h3 {
+    text-align: center;
+}
+.tips-list {
+    list-style: disc;
+    padding-left: 25px; 
+    max-width: var(--text-block-max-width);
+    margin: 1.5rem auto 0 auto; 
+    font-size: 1rem;
+    color: var(--secondary-color);
+}
+.tips-list li {
+    margin-bottom: 0.8rem;
+}
+
+
+/* Footer */
+.app-footer {
+    background-color: var(--code-background-color); /* Use darkest bg for footer */
+    color: var(--secondary-color);
+    text-align: center;
+    padding: 2.2rem 2.8rem;
+    font-size: 0.9rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.app-footer p {
+    margin-bottom: 0.3rem;
+    color: var(--secondary-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+      padding: 0;
+      font-size: 15px; /* Slightly smaller base font on mobile for monospace */
+    }
+    #root {
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      box-shadow: none;
+    }
+    .app-header {
+        padding: 1.5rem 1.8rem;
+    }
+    .app-header h1 {
+        font-size: 1.7rem;
+    }
+    .app-header p {
+        font-size: 1rem;
+    }
+
+    .main-content {
+        padding: 1.8rem;
+    }
+    
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.7rem; }
+    h3 { font-size: 1.35rem; }
+    .algorithmic-deep-dive h3, .strategic-areas h3, .technical-implementation-guide h3 { font-size: 1.4rem; }
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 14px; /* Further adjust for very small screens if needed */
+    }
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    .main-content {
+        padding: 1.2rem;
+    }
+    .code-snippet {
+      font-size: 0.85em;
+      padding: 0.8rem;
+    }
+    .app-footer {
+        padding: 1.8rem 1.2rem;
+    }
+    .enhancements-table th,
+    .enhancements-table td {
+        padding: 0.7rem 0.8rem;
+    }
+    .tips-list {
+        padding-left: 20px;
+    }
+}
+
+/* Accessibility */
+.sr-only { /* Screen Reader Only */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

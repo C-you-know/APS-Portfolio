@@ -52,17 +52,21 @@ body {
 /* Header Styling */
 header[role="banner"] {
     background: var(--color-background-secondary);
-    color: var(--color-text-primary); /* Brighter text for header */
     padding: 1.5rem 1rem;
     text-align: center;
     border-bottom: 1px solid var(--color-border);
 }
 
 header h1 {
-    font-size: clamp(1.8rem, 5vw, 2.75rem);
+    font-family: var(--font-monospace);
+    font-size: clamp(2.2rem, 6vw, 3.2rem); /* Using larger font size for prominence */
     font-weight: 700;
     margin: 0;
-    color: var(--color-text-headings); /* Blue for header H1 */
+    background: linear-gradient(45deg, var(--color-accent-purple), var(--color-accent-blue));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    padding-bottom: 0.3rem; /* Optional: for a subtle underline effect with the gradient */
 }
 
 /* Main Content Styling */
@@ -76,20 +80,6 @@ main[role="main"] {
     border-radius: 8px;
     border: 1px solid var(--color-border);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.page-main-title {
-    font-family: var(--font-monospace);
-    font-size: clamp(2.2rem, 6vw, 3.2rem);
-    font-weight: 700;
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 2.5rem;
-    background: linear-gradient(45deg, var(--color-accent-purple), var(--color-accent-blue));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    padding-bottom: 0.3rem; /* Optional: for a subtle underline effect with the gradient */
 }
 
 main section {
@@ -193,12 +183,7 @@ footer[role="contentinfo"] {
     }
 
     header h1 {
-        font-size: clamp(1.6rem, 6vw, 2.2rem);
-    }
-
-    .page-main-title {
-        font-size: clamp(2rem, 7vw, 2.8rem);
-        margin-bottom: 2rem;
+        font-size: clamp(2rem, 7vw, 2.8rem); /* Adjusted clamp for responsiveness */
     }
 
     main h2 {
@@ -213,9 +198,8 @@ footer[role="contentinfo"] {
     main[role="main"] {
         padding: 1rem;
     }
-    .page-main-title {
-        font-size: clamp(1.8rem, 8vw, 2.5rem);
-        margin-bottom: 1.5rem;
+    header h1 {
+        font-size: clamp(1.8rem, 8vw, 2.5rem); /* Adjusted clamp for responsiveness */
     }
     ul li {
         padding-left: 1.8em;

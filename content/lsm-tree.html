@@ -19,8 +19,8 @@
         </section>
 
         <figure>
-            <img src="../src/LSM.png" alt="Diagram illustrating Consistent Hashing concept">
-            <figcaption>Conceptual diagram of Consistent Hashing.</figcaption>
+            <img src="../src/LSM.png" alt="Diagram illustrating Consistent Hashing concept" height="450px" width="800px">
+            <figcaption>Conceptual diagram of LSM trees.</figcaption>
         </figure>
 
         <section aria-labelledby="efficiency-heading">
@@ -55,6 +55,16 @@
                 <li><strong>Query latency:</strong> 95th percentile reduced from 1.8s to 60ms</li>
                 <li><strong>Storage cost:</strong> 50% reduction via compaction + deduplication</li>
                 <li><strong>System resilience:</strong> Logging sustained during 10x traffic spikes with zero data loss</li>
+            </ul>
+        </section>
+
+        <section aria-labelledby="key-insights-heading">
+            <h2 id="key-insights-heading">Key Insights</h2>
+            <ul>
+                <li>LSM Trees are ideal for write-heavy logs (append-only I/O)</li>
+                <li>Combined with Bloom filters, read performance is maintained</li>
+                <li>Supports eventual consistency, deduplication, and compaction</li>
+                <li>Widely used in production systems like Cassandra, RocksDB, LevelDB</li>
             </ul>
         </section>
 
@@ -168,16 +178,6 @@ public:
      // - Delete markers and handling.
 };
 </code></pre>
-        </section>
-
-        <section aria-labelledby="key-insights-heading">
-            <h2 id="key-insights-heading">Key Insights</h2>
-            <ul>
-                <li>LSM Trees are ideal for write-heavy logs (append-only I/O)</li>
-                <li>Combined with Bloom filters, read performance is maintained</li>
-                <li>Supports eventual consistency, deduplication, and compaction</li>
-                <li>Widely used in production systems like Cassandra, RocksDB, LevelDB</li>
-            </ul>
         </section>
 
         <section aria-labelledby="reference-heading">

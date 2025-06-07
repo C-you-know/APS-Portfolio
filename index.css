@@ -164,6 +164,27 @@ ul li::before {
     line-height: inherit; /* Ensure proper vertical alignment */
 }
 
+/* Image and Figure Styling */
+main section img {
+    display: block; /* Treat image as a block element */
+    margin: 1rem auto; /* Center images and add vertical space */
+    max-width: 100%; /* Make images responsive */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 4px; /* Optional: slight rounding */
+    border: 1px solid var(--color-border); /* Optional: add a border */
+}
+
+figure {
+    margin: 1rem auto; /* Add margin to figures */
+    text-align: center; /* Center figure content */
+}
+
+figcaption {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    margin-top: 0.5rem;
+}
+
 
 /* Footer Styling */
 footer[role="contentinfo"] {

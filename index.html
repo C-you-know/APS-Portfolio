@@ -3,23 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM Inference Portfolio | Algorithmic Problem Solving</title>
+    <meta name="description" content="A simple static web page template with GitHub-inspired dark styling.">
+    <title>My Styled Static Page</title>
     <link rel="stylesheet" href="index.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💡</text></svg>">
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.1.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
-    "react/": "https://esm.sh/react@^19.1.0/"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
 </head>
 <body>
-    <div id="root"></div>
-    <script type="module" src="index.tsx"></script>
-<script type="module" src="/index.tsx"></script>
+    <header role="banner">
+        <h1>My Styled Static Page</h1>
+    </header>
+    <main role="main">
+        <h1 class="page-main-title">Meet Klein</h1>
+
+        <section aria-labelledby="intro-heading">
+            <h2 id="intro-heading">Introduction</h2>
+            <p>This page demonstrates a static site with a GitHub-inspired dark theme, monospace fonts for code, and custom list styling.</p>
+        </section>
+
+        <section aria-labelledby="about-platform-heading">
+            <h2 id="about-platform-heading">About Our Platform</h2>
+            <p>We are building a globally distributed AI inference platform that serves machine learning models with high availability, low latency, and automatic scalability. It supports multi-tenant deployments, dynamically allocating GPUs based on model demand. A hierarchical load balancing system routes requests from users to regions, then to optimal GPU nodes. All inference inputs and outputs are stored for traceability, and stateless compute with replicated storage ensures fault tolerance. The platform handles diverse input types (text, images, video, audio, time series) and scales horizontally and vertically to match workload fluctuations.</p>
+        </section>
+
+        <section aria-labelledby="content-heading">
+            <h2 id="content-heading">Main Content</h2>
+            <p>This section can contain the primary content of your static page. You can add more paragraphs, images, or any other static HTML elements here as needed. Links, like <a href="#">this example link</a>, will also be styled.</p>
+        </section>
+
+        <section aria-labelledby="code-example-heading">
+            <h2 id="code-example-heading">Code Snippet Example</h2>
+            <p>Below is an example of how code blocks are styled with a monospace font:</p>
+            <pre><code class="language-javascript">// Example JavaScript code
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+console.log(greet('Developer'));
+// This is a comment
+const PI = 3.14159;</code></pre>
+        </section>
+
+        <section aria-labelledby="features-heading">
+            <h2 id="features-heading">Key Features</h2>
+            <p>The page includes the following styled elements:</p>
+            <ul>
+                <li>Custom circular bullet points (the "circle thingy").</li>
+                <li>A dark theme inspired by GitHub aesthetics.</li>
+                <li>Monospace font for all preformatted text and code.</li>
+                <li>Responsive design for various screen sizes.</li>
+            </ul>
+        </section>
+
+        <section aria-labelledby="course-info-heading">
+            <h2 id="course-info-heading">Course Information</h2>
+            <p><strong>Course Name:</strong> Algorithmic Problem Solving</p>
+            <p><strong>Domain:</strong> Distributed AI Model Serving and Inference Infrastructure</p>
+            <p><strong>Course Code:</strong> 24ECSE309</p>
+            <p><strong>Faculty:</strong> Prakash Hegade</p>
+            <p><strong>University:</strong> KLE Technological University, Hubballi-31</p>
+        </section>
+    </main>
+    <footer role="contentinfo">
+        <p>&copy; 2024 My App. All rights reserved.</p>
+    </footer>
 </body>
 </html>

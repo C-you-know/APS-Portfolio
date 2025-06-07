@@ -1,6 +1,0 @@
-{
-  "name": "LLM Inference Portfolio",
-  "description": "A portfolio showcasing algorithmic problem solving in LLM inference infrastructure, covering topics like low latency, distributed inferencing, and multi-modal support.",
-  "requestFramePermissions": [],
-  "prompt": ""
-}

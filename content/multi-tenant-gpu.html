@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Details on using Multi-Armed Bandit Resource Allocation for Multi-tenant GPU management in the Klein platform.">
+    <link rel="icon" type="image/svg+xml" href="../src/klein_logo.svg"> <!-- Path adjusted for subdirectory -->
+    <title>Klein - Multi-Armed Bandit Allocation</title>
+    <link rel="stylesheet" href="../index.css"> <!-- Path adjusted for subdirectory -->
+</head>
+<body>
+    <header role="banner">
+        <h1>Multi-Armed Bandit Resource Allocation for AI Inference</h1>
+    </header>
+    <main role="main">
+        <section>
+            <p>AI inference systems must dynamically allocate limited GPU resources across competing models with varying priorities and workloads. Multi-Armed Bandit algorithms provide an elegant solution by learning optimal resource allocation patterns while balancing exploration of new strategies with exploitation of known successful allocations. The algorithm treats each AI model as an "arm" in a multi-armed bandit problem, where the reward is based on model performance metrics like throughput, accuracy, or revenue impact. The Upper Confidence Bound (UCB) strategy balances exploitation of high-performing models with exploration of potentially better allocations.</p>
+        </section>
+
+        <section aria-labelledby="efficiency-heading">
+            <h2 id="efficiency-heading">Efficiency Analysis</h2>
+            <p><strong>Time Complexity:</strong></p>
+            <ul>
+                <li>Model selection: O(K log K) where K is number of models, dominated by sorting UCB scores</li>
+                <li>Reward update: O(K) linear search through arms</li>
+                <li>Memory usage: O(K) for storing model statistics</li>
+            </ul>
+            <p><strong>Convergence:</strong> UCB achieves O(√(K log T)) regret bound over T time steps, meaning the algorithm quickly converges to near-optimal resource allocation.</p>
+            <p><strong>Scalability:</strong> The algorithm adapts to varying workloads without manual tuning, automatically learning which models deserve more resources based on observed performance.</p>
+        </section>
+
+        <section aria-labelledby="business-case-heading">
+            <h2 id="business-case-heading">Business Case: Multi-Tenant AI-as-a-Service Platform</h2>
+            <p><strong>Problem:</strong> A cloud AI platform hosts 50+ customer models (fraud detection, recommendation engines, image recognition) on shared GPU clusters. Static allocation leads to resource waste and SLA violations during traffic spikes.</p>
+            <p><strong>Solution:</strong> Deploy multi-armed bandit scheduler that dynamically allocates GPUs based on real-time demand, model performance, and customer SLA requirements.</p>
+            <p><strong>Results:</strong></p>
+            <ul>
+                <li><strong>Resource utilization:</strong> Improved from 65% to 89% average GPU usage</li>
+                <li><strong>SLA compliance:</strong> 99.2% uptime vs previous 94.8%</li>
+                <li><strong>Revenue impact:</strong> $8M additional ARR from higher customer satisfaction</li>
+                <li><strong>Operational efficiency:</strong> 60% reduction in manual intervention for resource conflicts</li>
+            </ul>
+            <p>The bandit algorithm automatically learned that fraud detection models need immediate resources during peak shopping hours, while recommendation models can tolerate slight delays, leading to optimal business outcomes without human oversight.</p>
+        </section>
+
+        <section aria-labelledby="reference-heading">
+             <h2 id="reference-heading">Reference</h2>
+             <p>Auer, P., Cesa-Bianchi, N., & Fischer, P. (2002). "Finite-time analysis of the multiarmed bandit problem." <em>Machine Learning</em>, 47(2-3), 235-256.</p>
+        </section>
+
+         <section aria-labelledby="implementation-heading">
+             <h2 id="implementation-heading">Implementation Example (C++)</h2>
+             <pre><code class="language-cpp">#include <vector>
+#include <string>
+#include <cmath>
+#include <algorithm>
+#include <random>
+#include <limits> // Required for std::numeric_limits
+
+class UCBScheduler {
+private:
+    struct ModelArm {
+        std::string model_id;
+        double total_reward;
+        int selection_count;
+        double priority_weight;
+        int gpu_requirement;
+
+        ModelArm(std::string id, double weight, int gpu_req)
+            : model_id(id), total_reward(0), selection_count(0),
+              priority_weight(weight), gpu_requirement(gpu_req) {}
+    };
+
+    std::vector<ModelArm> arms;
+    int total_selections;
+    int available_gpus;
+    std::mt19937 rng; // Moved RNG here to be a member
+
+    // Upper Confidence Bound calculation
+    double calculate_ucb(const ModelArm& arm, double exploration_param = 2.0) {
+        if (arm.selection_count == 0) {
+            return std::numeric_limits<double>::infinity();
+        }
+
+        double avg_reward = arm.total_reward / arm.selection_count;
+        double confidence = sqrt((exploration_param * log(total_selections)) / arm.selection_count);
+
+        return avg_reward + confidence * arm.priority_weight;
+    }
+
+public:
+    UCBScheduler(int gpu_count) : total_selections(0), available_gpus(gpu_count) {
+         rng.seed(std::random_device{}()); // Seed the RNG in the constructor
+    }
+
+
+    void add_model(const std::string& model_id, double priority, int gpu_requirement) {
+        arms.emplace_back(model_id, priority, gpu_requirement);
+    }
+
+    std::vector<std::string> select_models() {
+        if (arms.empty()) return {};
+
+        std::vector<std::pair<double, int>> ucb_scores;
+        for (int i = 0; i < arms.size(); i++) {
+            ucb_scores.push_back({calculate_ucb(arms[i]), i});
+        }
+
+        // Sort by UCB score (descending)
+        std::sort(ucb_scores.begin(), ucb_scores.end(), std::greater<>());
+
+        std::vector<std::string> selected;
+        int used_gpus = 0;
+
+        for (auto& [score, idx] : ucb_scores) {
+            if (used_gpus + arms[idx].gpu_requirement <= available_gpus) {
+                selected.push_back(arms[idx].model_id);
+                used_gpus += arms[idx].gpu_requirement;
+                arms[idx].selection_count++;
+                total_selections++;
+            }
+        }
+
+        return selected;
+    }
+
+    void update_reward(const std::string& model_id, double reward) {
+        for (auto& arm : arms) {
+            if (arm.model_id == model_id) {
+                arm.total_reward += reward;
+                break;
+            }
+        }
+    }
+};

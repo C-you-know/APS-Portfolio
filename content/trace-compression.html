@@ -1040,12 +1040,7 @@ public:
             compressed > 0 ? static_cast<double>(original) / compressed : 1.0, // Avoid division by zero
             ops > 0 ? static_cast<double>(original - compressed) / ops : 0.0 // Avoid division by zero
         };
-    }
-
-     // Note: Metrics from background batch processing (total_compressed_bytes from batches)
-     // are not currently captured/aggregated in this simplified example.
-     // A real system would need a mechanism for workers to report results/metrics back.
-};
+    }};
 </code></pre>
         </section>
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A simple static web page template with GitHub-inspired dark styling, focusing on course information.">
+    <meta name="description" content="A simple static web page template with GitHub-inspired dark styling, focusing on course information and an introduction to Klein.">
     <title>Meet Klein</title>
     <link rel="stylesheet" href="index.css">
 </head>
@@ -12,6 +12,11 @@
         <h1>Meet Klein</h1>
     </header>
     <main role="main">
+        <section aria-labelledby="introduction-heading">
+            <h2 id="introduction-heading">Introduction</h2>
+            <p>We are building a globally distributed AI inference platform that serves machine learning models with high availability, low latency, and automatic scalability. It supports multi-tenant deployments, dynamically allocating GPUs based on model demand. A hierarchical load balancing system routes requests from users to regions, then to optimal GPU nodes. All inference inputs and outputs are stored for traceability, and stateless compute with replicated storage ensures fault tolerance. The platform handles diverse input types (text, images, video, audio, time series) and scales horizontally and vertically to match workload fluctuations.</p>
+        </section>
+
         <section aria-labelledby="course-info-heading">
             <h2 id="course-info-heading">Course Information</h2>
             <p><strong>Course Name:</strong> Algorithmic Problem Solving</p>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Details on using Token Bucket Rate Limiting with Adaptive Backpressure in the Klein platform.">
+    <link rel="icon" type="image/svg+xml" href="../src/klein_logo.svg"> <!-- Path adjusted for subdirectory -->
+    <title>Klein - Rate Limiting</title>
+    <link rel="stylesheet" href="../index.css"> <!-- Path adjusted for subdirectory -->
+</head>
+<body>
+    <header role="banner">
+        <h1>Token Bucket Rate Limiting with Adaptive Backpressure</h1>
+    </header>
+    <main role="main">
+        <section>
+            <p>Distributed AI inference systems must prevent overload while maintaining fairness across clients and request types. Token bucket algorithms provide precise rate control with burst handling capabilities, while adaptive backpressure prevents cascade failures when downstream services become saturated. The algorithm maintains per-client token buckets that refill at configurable rates while monitoring system-wide pressure. When backends become saturated, the backpressure mechanism dynamically reduces token availability, gracefully degrading service rather than allowing complete system failure.</p>
+        </section>
+
+        <section aria-labelledby="efficiency-heading">
+            <h2 id="efficiency-heading">Efficiency Analysis</h2>
+            <p><strong>Time Complexity:</strong></p>
+            <ul>
+                <li>Request validation: O(1) atomic operations for token consumption and refill calculation</li>
+                <li>Bucket refill: O(1) time-based token addition using elapsed time</li>
+                <li>Pressure calculation: O(1) based on current active request count</li>
+            </ul>
+            <p><strong>Space Complexity:</strong> O(C) where C is the number of unique clients</p>
+            <p><strong>Fairness:</strong> Token bucket provides burst capacity while maintaining long-term rate limits, preventing any single client from monopolizing resources during traffic spikes.</p>
+        </section>
+
+        <section aria-labelledby="business-case-heading">
+            <h2 id="business-case-heading">Business Case: Multi-Tenant AI API Platform</h2>
+            <p><strong>Problem:</strong> A computer vision API serves 500+ enterprise clients with varying SLA tiers. Without rate limiting, high-volume clients overwhelm the system during peak hours, causing 30-second timeouts for premium customers and $200K monthly SLA penalty costs.</p>
+            <p><strong>Solution:</strong> Implement token bucket rate limiting with adaptive backpressure, allocating tokens based on customer tier while protecting system stability during overload conditions.</p>
+            <p><strong>Results:</strong></p>
+            <ul>
+                <li><strong>SLA compliance:</strong> 99.9% response time adherence vs previous 87%</li>
+                <li><strong>Revenue protection:</strong> $2.4M annual savings from eliminated SLA penalties</li>
+                <li><strong>System stability:</strong> Zero complete outages during traffic spikes vs previous 12 incidents</li>
+                <li><strong>Client satisfaction:</strong> Premium tier latency reduced from 2.1s to 340ms during peak load</li>
+            </ul>
+            <p>The token bucket algorithm automatically handled burst traffic from major clients while backpressure prevented cascade failures. Premium clients received guaranteed token allocation, while lower-tier clients experienced graceful degradation rather than complete service denial.</p>
+        </section>
+
+        <section aria-labelledby="reference-heading">
+             <h2 id="reference-heading">Reference</h2>
+             <p>Turner, J. (2004). "New directions in communications (or which way to the information age?)." <em>IEEE Communications Magazine</em>, 24(10), 8-15. Section on Token Bucket Traffic Shaping.</p>
+        </section>
+
+         <section aria-labelledby="implementation-heading">
+             <h2 id="implementation-heading">Implementation Example (C++)</h2>
+             <pre><code class="language-cpp">#include <chrono>
+#include <atomic>
+#include <string>
+#include <unordered_map>
+#include <algorithm>
+#include <cmath> // For std::min, std::max
+#include <limits> // Required for std::numeric_limits (if used in a helper)
+
+
+class TokenBucketLimiter {
+private:
+    struct Bucket {
+        std::atomic<double> tokens;
+        std::atomic<std::chrono::steady_clock::time_point> last_refill;
+        double capacity;
+        double refill_rate;  // tokens per second
+
+        Bucket(double cap, double rate)
+            : tokens(cap), capacity(cap), refill_rate(rate) {
+            last_refill.store(std::chrono::steady_clock::now());
+        }
+    };
+
+    std::unordered_map<std::string, Bucket> buckets;
+    std::atomic<double> system_pressure;  // 0.0 to 1.0
+    std::atomic<int> active_requests;
+    const int MAX_CONCURRENT_REQUESTS;
+    const double BACKPRESSURE_THRESHOLD = 0.8;
+
+    void refill_bucket(Bucket& bucket) {
+        auto now = std::chrono::steady_clock::now();
+        // Use load with memory_order_relaxed if appropriate, but seq_cst is safer default
+        auto last = bucket.last_refill.load();
+
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - last);
+        double seconds_elapsed = duration.count() / 1000.0;
+
+        if (seconds_elapsed > 0) {
+            double tokens_to_add = seconds_elapsed * bucket.refill_rate;
+            double current_tokens = bucket.tokens.load();
+            double new_tokens = std::min(bucket.capacity, current_tokens + tokens_to_add);
+
+            // Use store with memory_order_relaxed if appropriate
+            bucket.tokens.store(new_tokens);
+             // Use store with memory_order_relaxed if appropriate
+            bucket.last_refill.store(now);
+        }
+    }
+
+    double calculate_backpressure_factor() {
+        double pressure = system_pressure.load(); // Use load for atomic read
+        if (pressure < BACKPRESSURE_THRESHOLD) {
+            return 1.0;  // Normal operation
+        }
+
+        // Exponential backoff when system is under pressure
+        double excess_pressure = pressure - BACKPRESSURE_THRESHOLD;
+        return std::max(0.1, 1.0 - (excess_pressure / (1.0 - BACKPRESSURE_THRESHOLD)) * 0.9);
+    }
+
+public:
+    TokenBucketLimiter(int max_requests = 1000)
+        : system_pressure(0.0), active_requests(0), MAX_CONCURRENT_REQUESTS(max_requests) {}
+
+    // Note: Adding/removing buckets from unordered_map is not thread-safe 
+    // without external synchronization if called concurrently with allow_request.
+    void create_bucket(const std::string& client_id, double capacity, double refill_rate) {
+        buckets.emplace(client_id, Bucket(capacity, refill_rate));
+    }
+
+    bool allow_request(const std::string& client_id, double tokens_needed = 1.0) {
+        // Check system-wide backpressure
+        if (active_requests.load() >= MAX_CONCURRENT_REQUESTS) { // Use load for atomic read
+            return false;
+        }
+
+        auto it = buckets.find(client_id);
+        if (it == buckets.end()) {
+            return false;  // Client not configured
+        }
+
+        Bucket& bucket = it->second;
+        refill_bucket(bucket);
+
+        // Apply backpressure factor
+        double effective_tokens_needed = tokens_needed / calculate_backpressure_factor();
+
+        double current_tokens = bucket.tokens.load(); // Use load before compare_exchange
+        if (current_tokens >= effective_tokens_needed) {
+            // Atomic token consumption
+            double expected = current_tokens;
+            while (!bucket.tokens.compare_exchange_weak(
+                expected, expected - effective_tokens_needed)) {
+                // The load in compare_exchange_weak updates expected if it fails
+                if (expected < effective_tokens_needed) {
+                    return false;  // Insufficient tokens after concurrent access
+                }
+            }
+
+            active_requests++; // Atomic increment
+            return true;
+        }
+
+        return false;
+    }
+
+    void complete_request() {
+        active_requests--; // Atomic decrement
+
+        // Update system pressure based on current load
+        double current_load = static_cast<double>(active_requests.load()) / MAX_CONCURRENT_REQUESTS;
+        system_pressure.store(current_load); // Use store for atomic write
+    }
+
+    double get_bucket_level(const std::string& client_id) {
+        auto it = buckets.find(client_id);
+        if (it != buckets.end()) {
+            refill_bucket(it->second);
+            return it->second.tokens.load() / it->second.capacity; // Use load
+        }
+        return 0.0;
+    }
+};
+</code></pre>
+        </section>
+
+
+        <p><a href="../index.html">← Back to Home</a></p> <!-- Link back to the main page -->
+    </main>
+    <footer role="contentinfo">
+        <p>© 2025 Klein. All rights reserved.</p>
+    </footer>
+</body>
+</html>

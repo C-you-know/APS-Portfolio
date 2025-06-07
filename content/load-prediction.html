@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Details on Dynamic Load Prediction using hybrid AI and algorithmic approaches in the Klein platform.">
+    <link rel="icon" type="image/svg+xml" href="../src/klein_logo.svg"> <!-- Path adjusted for subdirectory -->
+    <title>Klein - Load Prediction</title>
+    <link rel="stylesheet" href="../index.css"> <!-- Path adjusted for subdirectory -->
+</head>
+<body>
+    <header role="banner">
+        <h1>Dynamic Load Prediction (AI + Algo Hybrid)</h1>
+    </header>
+    <main role="main">
+        <section aria-labelledby="introduction-heading">
+            <h2 id="introduction-heading">Introduction</h2>
+            <p>We are building a globally distributed AI inference platform that serves machine learning models with high availability, low latency, and automatic scalability. It supports multi-tenant deployments, dynamically allocating GPUs based on model demand. A hierarchical load balancing system routes requests from users to regions, then to optimal GPU nodes. All inference inputs and outputs are stored for traceability, and stateless compute with replicated storage ensures fault tolerance. The platform handles diverse input types (text, images, video, audio, time series) and scales horizontally and vertically to match workload fluctuations.</p>
+        </section>
+
+        <section aria-labelledby="system-properties-heading">
+            <h2 id="system-properties-heading">System Properties</h2>
+            <ul>
+                <li>Distributed Worldwide Access</li>
+                <li>Highly Available</li>
+                <li>Horizontally and Vertically Scalable</li>
+                <li>Low Latency</li>
+                <li>Observability</li>
+                <li>Security and Access Control</li>
+            </ul>
+        </section>
+
+        <section aria-labelledby="problem-heading">
+            <h2 id="problem-heading">Problem</h2>
+            <p>In a globally distributed inference system, request traffic fluctuates due to time zones, user behavior, and external events. Predicting load is essential to pre-scale resources (like GPUs) before spikes happen — avoiding cold starts and ensuring low latency.</p>
+        </section>
+
+        <section aria-labelledby="solution-heading">
+            <h2 id="solution-heading">Solution</h2>
+            <p>Use a hybrid time-series approach:</p>
+            <ul>
+                <li><strong>Exponential Moving Average (EMA):</strong> For short-term, low-latency smoothing.</li>
+                <li><strong>Kalman Filters:</strong> For adaptive, noise-aware smoothing in noisy or bursty traffic.</li>
+                <li>(Optionally) <strong>ARIMA:</strong> For offline trend analysis or multi-seasonal effects.</li>
+            </ul>
+        </section>
+
+        <section aria-labelledby="efficiency-heading">
+            <h2 id="efficiency-heading">Efficiency Analysis</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Time Complexity</th>
+                        <th>Space Complexity</th>
+                        <th>Use Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>EMA</td>
+                        <td><code>O(1)</code></td>
+                        <td><code>O(1)</code></td>
+                        <td>Lightweight real-time trend</td>
+                    </tr>
+                    <tr>
+                        <td>Kalman Filter</td>
+                        <td><code>O(1)</code> (scalar)</td>
+                        <td><code>O(1)</code></td>
+                        <td>Adaptive to noise/bursts</td>
+                    </tr>
+                    <tr>
+                        <td>ARIMA</td>
+                        <td><code>O(n)</code></td>
+                        <td><code>O(p+q)</code></td>
+                        <td>Offline forecasting</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>💡 Kalman is better when you expect sudden changes or noise in traffic data.</p>
+        </section>
+
+        <section aria-labelledby="code-example-heading">
+            <h2 id="code-example-heading">Minimal Example: EMA + Kalman in C++</h2>
+            <pre><code class="language-cpp">#include <iostream>
+
+// Exponential Moving Average
+class EMA {
+    double alpha;
+    double smoothed; // Stores the current smoothed value
+    bool initialized; // To handle the first update case
+
+public:
+    // Alpha is the smoothing factor, between 0 and 1. Higher alpha means less smoothing.
+    EMA(double alpha) : alpha(alpha), smoothed(0.0), initialized(false) {}
+
+    // Updates the smoothed value with a new incoming value
+    double update(double value) {
+        if (!initialized) {
+            // For the very first value, the smoothed value is just the value itself
+            smoothed = value;
+            initialized = true;
+        } else {
+            // Apply the EMA formula
+            smoothed = alpha * value + (1.0 - alpha) * smoothed;
+        }
+        return smoothed;
+    }
+
+    // Get the current smoothed value
+    double get_smoothed_value() const {
+        return smoothed;
+    }
+};
+
+// Simple 1D Kalman Filter for a single variable
+class Kalman {
+    double estimate;     // The current best estimate of the state
+    double error_estimate; // The estimated error covariance of the estimate
+    double error_measurement; // The error covariance of the measurement (noise)
+    double kalman_gain;  // The Kalman gain
+
+public:
+    // init: Initial estimate of the state
+    // err_est: Initial estimate of the error covariance of the state
+    // err_meas: The error covariance of the measurement (sensor noise variance)
+    Kalman(double init, double err_est, double err_meas)
+        : estimate(init), error_estimate(err_est), error_measurement(err_meas), kalman_gain(0.0) {}
+
+    // Updates the estimate with a new measurement
+    double update(double measurement) {
+        // 1. Calculate the Kalman Gain
+        kalman_gain = error_estimate / (error_estimate + error_measurement);
+
+        // 2. Update the estimate using the measurement
+        estimate = estimate + kalman_gain * (measurement - estimate);
+
+        // 3. Update the error estimate
+        error_estimate = (1.0 - kalman_gain) * error_estimate;
+
+        return estimate; // Return the updated estimate
+    }
+
+    // Get the current estimate
+    double get_estimate() const {
+        return estimate;
+    }
+
+    // Get the current error estimate
+    double get_error_estimate() const {
+        return error_estimate;
+    }
+};
+
+int main() {
+    // Create instances of EMA and Kalman filter
+    EMA ema(0.3); // Alpha = 0.3
+    // Kalman(initial estimate, initial error estimate, measurement noise variance)
+    Kalman kalman(0.0, 1.0, 1.0); // Initial estimate 0, error estimate 1, measurement noise 1
+
+    // Simulated traffic data over time points
+    double traffic_data[] = {100.0, 110.0, 130.0, 125.0, 160.0, 300.0, 120.0, 135.0, 140.0, 155.0, 180.0, 400.0, 150.0}; // simulated traffic points
+
+    // Process each data point and print results
+    std::cout << "Processing simulated traffic data:" << std::endl;
+    std::cout << "--------------------------------------------------" << std::endl;
+
+    for (double t : traffic_data) {
+        double ema_smoothed = ema.update(t);
+        double kalman_estimated = kalman.update(t);
+
+        std::cout << "Raw: " << t
+                  << " | EMA Smoothed: " << ema_smoothed
+                  << " | Kalman Estimate: " << kalman_estimated
+                  << std::endl;
+    }
+
+    std::cout << "--------------------------------------------------" << std::endl;
+
+    return 0;
+}
+</code></pre>
+        </section>
+
+        <section aria-labelledby="fits-system-heading">
+            <h2 id="fits-system-heading">Where It Fits in Your System</h2>
+            <p>This load predictor can:</p>
+            <ul>
+                <li>Feed into your **GPU scheduler** to warm up instances before demand spikes</li>
+                <li>Help the **global load balancer** decide regional traffic redirection</li>
+                <li>Enable **smart auto-scaling triggers**</li>
+            </ul>
+        </section>
+
+        <section aria-labelledby="business-impact-heading">
+            <h2 id="business-impact-heading">Business Impact (Realistic Example)</h2>
+            <p><strong>Scenario:</strong> A video analysis AI model sees spikes during live sports.</p>
+            <ul>
+                <li>EMA forecasts 12% traffic rise in 30s → Pre-warm 3 GPUs</li>
+                <li>Kalman identifies burst → Re-route to low-latency backup region</li>
+                <li>Result: 90% reduction in cold starts, 25% latency improvement</li>
+            </ul>
+        </section>
+
+        <section aria-labelledby="further-exploration-heading">
+            <h2 id="further-exploration-heading">Further Exploration</h2>
+            <p>Would you like the Kalman version for multiple variables or deeper smoothing control?</p>
+        </section>
+
+
+        <p><a href="../index.html">← Back to Home</a></p> <!-- Link back to the main page -->
+    </main>
+    <footer role="contentinfo">
+        <p>© 2025 Klein. All rights reserved.</p>
+    </footer>
+</body>
+</html>

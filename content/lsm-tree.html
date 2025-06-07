@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Details on using Write-Optimized Log-Structured Merge Trees (LSM Trees) for High-Velocity Inference Logging in the Klein platform.">
+    <link rel="icon" type="image/svg+xml" href="../src/klein_logo.svg"> <!-- Path adjusted for subdirectory -->
+    <title>Klein - LSM Trees</title>
+    <link rel="stylesheet" href="../index.css"> <!-- Path adjusted for subdirectory -->
+</head>
+<body>
+    <header role="banner">
+        <h1>Write-Optimized Log-Structured Merge Tree (LSM Tree) for High-Velocity Inference Logging</h1>
+    </header>
+    <main role="main">
+        <section aria-labelledby="introduction-heading">
+            <h2 id="introduction-heading">Introduction</h2>
+            <p>In AI inference systems, high-throughput input/output trace logging is crucial for debugging, auditability, and model version rollback. Traditional B-tree-based stores suffer from write amplification under heavy logging. LSM Trees are designed for write-intensive workloads, batching writes in memory and flushing them to disk in sorted order. Compaction merges sorted runs, optimizing both read and write paths over time. A Bloom filter is used per SSTable to accelerate point lookups, avoiding unnecessary disk seeks.</p>
+        </section>
+
+        <section aria-labelledby="efficiency-heading">
+            <h2 id="efficiency-heading">Efficiency Analysis</h2>
+            <p><strong>Time Complexity:</strong></p>
+            <ul>
+                <li>Write operation (append): O(1) amortized</li>
+                <li>Read operation: O(log N) across levels, but O(1) with Bloom filter skip</li>
+                <li>Compaction: O(N log N), background process</li>
+            </ul>
+            <p><strong>Space Complexity:</strong></p>
+            <ul>
+                <li>In-memory buffer: O(M)</li>
+                <li>On-disk SSTables: O(N)</li>
+                <li>Bloom filters: O(kN) where k = number of hash functions</li>
+            </ul>
+            <p><strong>Write Optimization:</strong></p>
+            <ul>
+                <li>Immutable SSTables eliminate in-place updates</li>
+                <li>Sequential disk writes maximize I/O efficiency</li>
+                <li>Bloom filters + fence pointers reduce read cost despite multi-level structure</li>
+            </ul>
+        </section>
+
+        <section aria-labelledby="business-case-heading">
+            <h2 id="business-case-heading">Business Case: E-Commerce AI Product Ranking</h2>
+            <p><strong>Problem:</strong> A large-scale e-commerce platform logs 1M+ product recommendation inferences per hour. Real-time auditability and A/B testing require storing every input/output trace. B-tree logging caused I/O bottlenecks and increased latency during flash sales, degrading user experience.</p>
+            <p><strong>Solution:</strong> Replace legacy logging system with LSM Tree-based store (e.g., RocksDB-like implementation) using per-table Bloom filters for fast read-back and content-addressed keys for deduplication.</p>
+            <p><strong>Results:</strong></p>
+            <ul>
+                <li><strong>Write throughput:</strong> Increased from 3K/s to 120K/s</li>
+                <li><strong>Query latency:</strong> 95th percentile reduced from 1.8s to 60ms</li>
+                <li><strong>Storage cost:</strong> 50% reduction via compaction + deduplication</li>
+                <li><strong>System resilience:</strong> Logging sustained during 10x traffic spikes with zero data loss</li>
+            </ul>
+        </section>
+
+        <section aria-labelledby="code-logic-heading">
+             <h2 id="code-logic-heading">Core Logic in C++ (Simplified LSM Tree Append)</h2>
+             <p>This simplified C++ snippet illustrates two core components of an LSM Tree: a Bloom Filter for fast existence checks and a MemTable for in-memory buffering of writes before flushing to disk.</p>
+             <pre><code class="language-cpp">#include <iostream>
+#include <unordered_map>
+#include <vector>
+#include <fstream>
+#include <string>
+#include <bitset>
+#include <functional> // Required for std::hash
+#include <limits> // Required for numeric_limits (though not strictly used in this snippet)
+
+
+// Simplified Bloom Filter implementation
+const size_t BLOOM_SIZE = 8192; // Fixed size for the bitset
+
+class BloomFilter {
+    std::bitset<BLOOM_SIZE> bits; // The bit array
+
+    // Two simple hash functions for demonstration
+    size_t hash1(const std::string& s) const { // Made const
+        return std::hash<std::string>{}{s} % BLOOM_SIZE; // Using std::hash
+    }
+    size_t hash2(const std::string& s) const { // Made const
+        // A slightly different hash by adding a "salt"
+        return std::hash<std::string>{}{s + "salt"} % BLOOM_SIZE;
+    }
+
+public:
+    // Inserts a key into the Bloom filter
+    void insert(const std::string& s) {
+        bits[hash1(s)] = 1; // Set the bit at hash1 index
+        bits[hash2(s)] = 1; // Set the bit at hash2 index
+    }
+
+    // Checks if a key might exist in the set.
+    // Returns true if it might exist (potential false positive), false if it definitely doesn't exist (no false negatives).
+    bool possiblyExists(const std::string& s) const { // Made const
+        return bits[hash1(s)] && bits[hash2(s)]; // Check if both bits are set
+    }
+
+    // Optional: clear the bloom filter
+    void clear() {
+        bits.reset();
+    }
+};
+
+// Simplified MemTable (In-Memory Write Buffer)
+class MemTable {
+    // Stores key-value pairs in memory. Using unordered_map for simple illustration.
+    // In a real LSM tree, a sorted structure like skip list or balanced tree is used for ordered iteration.
+    std::unordered_map<std::string, std::string> data;
+public:
+    // Inserts or updates a key-value pair in the memtable
+    void insert(const std::string& key, const std::string& value) {
+        data[key] = value; // Insert or update
+    }
+
+    // Flushes the current contents of the memtable to a sorted file (SSTable) on disk.
+    // Also populates the Bloom filter for the keys being flushed.
+    bool flushToDisk(const std::string& filename, BloomFilter& bloom) {
+        // In a real LSM Tree, data from the memtable needs to be written in *sorted* order
+        // to form an SSTable (Sorted String Table). unordered_map doesn't guarantee order.
+        // We'll iterate and write, but true SSTable creation requires sorting.
+        // For simplicity, let's just write keys/values line by line.
+
+        std::ofstream file(filename); // Open the output file
+        if (!file.is_open()) return false; // Check if file opened successfully
+
+        // Iterate through data and write to file. Need to sort keys in reality.
+        // For demonstration, just iterating:
+        for (const auto& pair : data) {
+            file << pair.first << "\t" << pair.second << "\n"; // Write key and value, separated by tab
+            bloom.insert(pair.first); // Add the key to the Bloom filter for this SSTable
+        }
+
+        file.close(); // Close the file
+        data.clear(); // Clear the memtable after flushing
+        return true; // Indicate success
+    }
+
+    // Check if memtable is empty
+    bool isEmpty() const { // Made const
+        return data.empty();
+    }
+
+    // Get size of memtable (number of entries)
+    size_t size() const { // Made const
+        return data.size();
+    }
+
+    // Get estimated memory usage (simplistic)
+    size_t estimatedMemoryUsage() const { // Made const
+        size_t usage = sizeof(*this); // Size of MemTable object itself
+        for (const auto& pair : data) {
+            usage += sizeof(pair.first) + pair.first.capacity(); // Key string size + capacity
+            usage += sizeof(pair.second) + pair.second.capacity(); // Value string size + capacity
+            // Plus overhead of unordered_map nodes (~24-40 bytes per node typically)
+        }
+        return usage;
+    }
+
+     // In a real LSM Tree, you would also need:
+     // - A WAL (Write-Ahead Log) for durability before inserting into MemTable.
+     // - SSTable reader classes.
+     // - Compaction process (merging SSTables across levels).
+     // - A mechanism to manage multiple SSTables and levels.
+     // - Delete markers and handling.
+};
+</code></pre>
+        </section>
+
+        <section aria-labelledby="key-insights-heading">
+            <h2 id="key-insights-heading">Key Insights</h2>
+            <ul>
+                <li>LSM Trees are ideal for write-heavy logs (append-only I/O)</li>
+                <li>Combined with Bloom filters, read performance is maintained</li>
+                <li>Supports eventual consistency, deduplication, and compaction</li>
+                <li>Widely used in production systems like Cassandra, RocksDB, LevelDB</li>
+            </ul>
+        </section>
+
+        <section aria-labelledby="reference-heading">
+            <h2 id="reference-heading">Reference</h2>
+            <ol>
+                <li>O'Neil, Patrick et al. (1996). “The LSM Tree: A New Structure for High-Performance Writes.”</li>
+                <li>Bloom, B. H. (1970). "Space/time trade-offs in hash coding with allowable errors." Communications of the ACM, 13(7), 422–426.</li>
+            </ol>
+        </section>
+
+
+        <p><a href="../index.html">← Back to Home</a></p> <!-- Link back to the main page -->
+    </main>
+    <footer role="contentinfo">
+        <p>© 2025 Klein. All rights reserved.</p>
+    </footer>
+</body>
+</html>

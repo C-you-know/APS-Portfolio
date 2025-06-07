@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Details on using Consistent Hashing for Distributed AI Model Serving in the Klein platform.">
+    <link rel="icon" type="image/svg+xml" href="../src/klein_logo.svg"> <!-- Path adjusted for subdirectory -->
+    <title>Klein - Consistent Hashing</title>
+    <link rel="stylesheet" href="../index.css"> <!-- Path adjusted for subdirectory -->
+</head>
+<body>
+    <header role="banner">
+        <h1>Consistent Hashing for Distributed AI Model Serving</h1>
+    </header>
+    <main role="main">
+        <section>
+            <p>Modern AI inference systems require intelligent request routing to handle global traffic efficiently. Consistent hashing provides an elegant solution by mapping both requests and servers onto a circular hash space, enabling predictable load distribution and seamless scaling. The implementation uses virtual nodes to prevent hotspots and maintains a sorted hash ring for efficient lookups. When requests arrive, binary search finds the appropriate server in O(log N) time, while server additions only redistribute K/N keys instead of rehashing everything.</p>
+
+            <!-- Added Images -->
+            <figure>
+                <img src="../src/con_hash.png" alt="Diagram illustrating Consistent Hashing concept">
+                <figcaption>Conceptual diagram of Consistent Hashing.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="../src/load_balence_tree.png" alt="Diagram related to load balancing or routing tree">
+                <figcaption>Visual representation of a load balancing mechanism.</figcaption>
+            </figure>
+            <!-- End Added Images -->
+
+        </section>
+
+        <section aria-labelledby="efficiency-heading">
+            <h2 id="efficiency-heading">Efficiency Analysis</h2>
+            <p><strong>Time Complexity:</strong></p>
+            <ul>
+                <li>Request routing: O(log N) via binary search on sorted ring</li>
+                <li>Server addition: O(V log N) where V is virtual nodes per server</li>
+                <li>Server removal: O(N) linear scan through ring</li>
+            </ul>
+            <p><strong>Space Complexity:</strong> O(V × S) for V virtual nodes across S servers</p>
+            <p><strong>Scalability:</strong> Adding servers redistributes only 1/N of existing keys, compared to 100% redistribution in naive modular hashing. This makes horizontal scaling practical for large deployments.</p>
+        </section>
+
+        <section aria-labelledby="business-case-heading">
+            <h2 id="business-case-heading">Business Case: Global E-commerce AI Search</h2>
+            <p><strong>Problem:</strong> An e-commerce platform processes 50M daily product search queries using AI models deployed across 12 global data centers. Users experience inconsistent latency and poor cache hit rates due to random request distribution.</p>
+            <p><strong>Solution:</strong> Implement consistent hashing with geo-aware routing to cluster similar searches and maintain cache affinity.</p>
+            <p><strong>Results:</strong></p>
+            <ul>
+                <li><strong>Latency reduction:</strong> 45% average response time improvement</li>
+                <li><strong>Cache efficiency:</strong> Hit rate increased from 60% to 85%</li>
+                <li><strong>Operational cost:</strong> $3M annual savings from reduced database load</li>
+                <li><strong>Availability:</strong> Zero-downtime server maintenance with automatic failover</li>
+            </ul>
+            <p>The mathematical properties of consistent hashing directly translate to business value through predictable performance and simplified operations.</p>
+        </section>
+
+        <section aria-labelledby="reference-heading">
+             <h2 id="reference-heading">Reference</h2>
+             <p>Karger, D., Lehman, E., Leighton, T., Panigrahy, R., Levine, M., & Lewin, D. (1997). "Consistent hashing and random trees: Distributed caching protocols for relieving hot spots on the World Wide Web." <em>Proceedings of the 29th Annual ACM Symposium on Theory of Computing</em>, 654-663.</p>
+        </section>
+
+         <section aria-labelledby="implementation-heading">
+             <h2 id="implementation-heading">Implementation Example (C++)</h2>
+             <pre><code class="language-cpp">#include <map>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <cstdint> // Required for uint64_t
+
+class ConsistentHashing {
+private:
+    std::map<uint64_t, std::string> hash_ring;  // hash_value -> server_id
+    static const int VIRTUAL_NODES = 150;
+
+    uint64_t hash_function(const std::string& key) {
+        uint64_t hash = 0;
+        for (char c : key) {
+            hash = hash * 31 + c;
+        }
+        return hash;
+    }
+
+public:
+    void add_server(const std::string& server_id) {
+        for (int i = 0; i < VIRTUAL_NODES; i++) {
+            std::string vnode_key = server_id + "_" + std::to_string(i);
+            uint64_t hash_val = hash_function(vnode_key);
+            hash_ring[hash_val] = server_id;
+        }
+    }
+
+    std::string route_request(const std::string& request_key) {
+        if (hash_ring.empty()) return "";
+
+        uint64_t request_hash = hash_function(request_key);
+        auto it = hash_ring.lower_bound(request_hash);
+
+        if (it == hash_ring.end()) {
+            it = hash_ring.begin();  // Wrap around to first server
+        }
+
+        return it->second;
+    }
+
+    void remove_server(const std::string& server_id) {
+        auto it = hash_ring.begin();
+        while (it != hash_ring.end()) {
+            if (it->second == server_id) {
+                it = hash_ring.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+};
+</code></pre>
+        </section>
+
+
+        <p><a href="../index.html">← Back to Home</a></p> <!-- Link back to the main page -->
+    </main>
+    <footer role="contentinfo">
+        <p>© 2025 Klein. All rights reserved.</p>
+    </footer>
+</body>
+</html>

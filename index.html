@@ -3,123 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Details on using Consistent Hashing for Distributed AI Model Serving in the Klein platform.">
-    <link rel="icon" type="image/svg+xml" href="../src/klein_logo.svg"> <!-- Path adjusted for subdirectory -->
-    <title>Klein - Consistent Hashing</title>
-    <link rel="stylesheet" href="../index.css"> <!-- Path adjusted for subdirectory -->
+    <meta name="description" content="A simple static web page template with GitHub-inspired dark styling, focusing on course information and an introduction to Klein and its architecture.">
+    <link rel="icon" type="image/svg+xml" href="src/klein_logo.svg">
+    <title>Meet Klein</title>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
     <header role="banner">
-        <h1>Consistent Hashing for Distributed AI Model Serving</h1>
+        <h1>Meet Klein</h1>
     </header>
     <main role="main">
-        <section>
-            <p>Modern AI inference systems require intelligent request routing to handle global traffic efficiently. Consistent hashing provides an elegant solution by mapping both requests and servers onto a circular hash space, enabling predictable load distribution and seamless scaling. The implementation uses virtual nodes to prevent hotspots and maintains a sorted hash ring for efficient lookups. When requests arrive, binary search finds the appropriate server in O(log N) time, while server additions only redistribute K/N keys instead of rehashing everything.</p>
-
-            <!-- Added Images -->
-            <figure>
-                <img src="../src/con_hash.png" alt="Diagram illustrating Consistent Hashing concept">
-                <figcaption>Conceptual diagram of Consistent Hashing.</figcaption>
-            </figure>
-
-            <figure>
-                <img src="../src/load_balence_tree.png" alt="Diagram related to load balancing or routing tree">
-                <figcaption>Visual representation of a load balancing mechanism.</figcaption>
-            </figure>
-            <!-- End Added Images -->
-
+        <section aria-labelledby="introduction-heading">
+            <h2 id="introduction-heading">Introduction</h2>
+            <p>We are building a globally distributed AI inference platform that serves machine learning models with high availability, low latency, and automatic scalability. It supports multi-tenant deployments, dynamically allocating GPUs based on model demand. A hierarchical load balancing system routes requests from users to regions, then to optimal GPU nodes. All inference inputs and outputs are stored for traceability, and stateless compute with replicated storage ensures fault tolerance. The platform handles diverse input types (text, images, video, audio, time series) and scales horizontally and vertically to match workload fluctuations.</p>
         </section>
 
-        <section aria-labelledby="efficiency-heading">
-            <h2 id="efficiency-heading">Efficiency Analysis</h2>
-            <p><strong>Time Complexity:</strong></p>
+        <section aria-labelledby="requirements-heading">
+            <h2 id="requirements-heading">System Requirements / Target Properties</h2>
             <ul>
-                <li>Request routing: O(log N) via binary search on sorted ring</li>
-                <li>Server addition: O(V log N) where V is virtual nodes per server</li>
-                <li>Server removal: O(N) linear scan through ring</li>
+                <li>Distributed Worldwide Access</li>
+                <li>Highly Available</li>
+                <li>Horizontally and Vertically Scalable</li>
+                <li>Low Latency</li>
+                <li>Observability</li>
+                <li>Security and Access Control</li>
             </ul>
-            <p><strong>Space Complexity:</strong> O(V × S) for V virtual nodes across S servers</p>
-            <p><strong>Scalability:</strong> Adding servers redistributes only 1/N of existing keys, compared to 100% redistribution in naive modular hashing. This makes horizontal scaling practical for large deployments.</p>
         </section>
 
-        <section aria-labelledby="business-case-heading">
-            <h2 id="business-case-heading">Business Case: Global E-commerce AI Search</h2>
-            <p><strong>Problem:</strong> An e-commerce platform processes 50M daily product search queries using AI models deployed across 12 global data centers. Users experience inconsistent latency and poor cache hit rates due to random request distribution.</p>
-            <p><strong>Solution:</strong> Implement consistent hashing with geo-aware routing to cluster similar searches and maintain cache affinity.</p>
-            <p><strong>Results:</strong></p>
+        <!-- NEW SECTION FOR INDUSTRIES & USE CASES -->
+        <section aria-labelledby="industries-heading">
+            <h2 id="industries-heading">Industries & Use Cases</h2>
             <ul>
-                <li><strong>Latency reduction:</strong> 45% average response time improvement</li>
-                <li><strong>Cache efficiency:</strong> Hit rate increased from 60% to 85%</li>
-                <li><strong>Operational cost:</strong> $3M annual savings from reduced database load</li>
-                <li><strong>Availability:</strong> Zero-downtime server maintenance with automatic failover</li>
+                <li><strong>E-Commerce:</strong> Real-time recommendations, fraud detection, image-based search</li>
+                <li><strong>Healthcare:</strong> Diagnostic AI (X-rays, MRIs), remote patient monitoring</li>
+                <li><strong>Autonomous Vehicles:</strong> Object detection, path prediction, fleet inference</li>
+                <li><strong>Social Media:</strong> Content moderation, feed ranking, voice/video filters</li>
+                <li><strong>AI-as-a-Service:</strong> Multi-tenant model hosting, usage-based billing</li>
+                <li><strong>Finance:</strong> Fraud detection, market prediction, document OCR</li>
+                <li><strong>Gaming:</strong> AI NPCs, real-time voice translation, behavior modeling</li>
+                <li><strong>Manufacturing/IoT:</strong> Sensor anomaly detection, predictive maintenance</li>
+                <li><strong>Telecom:</strong> Network optimization, voice assistant services</li>
+                <li><strong>Security/Surveillance:</strong> Face recognition, activity detection</li>
             </ul>
-            <p>The mathematical properties of consistent hashing directly translate to business value through predictable performance and simplified operations.</p>
+        </section>
+        <!-- END NEW SECTION -->
+
+        <section aria-labelledby="course-info-heading">
+            <h2 id="course-info-heading">Course Information</h2>
+            <p><strong>Course Name:</strong> Algorithmic Problem Solving</p>
+            <p><strong>Domain:</strong> Distributed AI Model Serving and Inference Infrastructure</p>
+            <p><strong>Course Code:</strong> 24ECSE309</p>
+            <p><strong>Faculty:</strong> Prakash Hegade</p>
+            <p><strong>University:</strong> KLE Technological University, Hubballi-31</p>
         </section>
 
-        <section aria-labelledby="reference-heading">
-             <h2 id="reference-heading">Reference</h2>
-             <p>Karger, D., Lehman, E., Leighton, T., Panigrahy, R., Levine, M., & Lewin, D. (1997). "Consistent hashing and random trees: Distributed caching protocols for relieving hot spots on the World Wide Web." <em>Proceedings of the 29th Annual ACM Symposium on Theory of Computing</em>, 654-663.</p>
+        <section aria-labelledby="architecture-heading">
+            <h2 id="architecture-heading">Architecture</h2>
+            <p>In today's world of rapidly evolving AI models and increasing demand, traditional single-server inference setups are insufficient. Distributing AI model serving across multiple nodes and regions becomes essential to achieve high availability, handle large traffic volumes with low latency, and ensure fault tolerance. A distributed architecture allows dynamic scaling, efficient resource utilization (like GPUs), and resilience against failures, providing a robust foundation for serving AI models globally.</p>
+            <img src="src/klein-arch.jpeg" height="500px" width="850px" alt="Architecture diagram of the Klein platform">
         </section>
 
-         <section aria-labelledby="implementation-heading">
-             <h2 id="implementation-heading">Implementation Example (C++)</h2>
-             <pre><code class="language-cpp">#include <map>
-#include <vector>
-#include <string>
-#include <algorithm>
-#include <cstdint> // Required for uint64_t
-
-class ConsistentHashing {
-private:
-    std::map<uint64_t, std::string> hash_ring;  // hash_value -> server_id
-    static const int VIRTUAL_NODES = 150;
-
-    uint64_t hash_function(const std::string& key) {
-        uint64_t hash = 0;
-        for (char c : key) {
-            hash = hash * 31 + c;
-        }
-        return hash;
-    }
-
-public:
-    void add_server(const std::string& server_id) {
-        for (int i = 0; i < VIRTUAL_NODES; i++) {
-            std::string vnode_key = server_id + "_" + std::to_string(i);
-            uint64_t hash_val = hash_function(vnode_key);
-            hash_ring[hash_val] = server_id;
-        }
-    }
-
-    std::string route_request(const std::string& request_key) {
-        if (hash_ring.empty()) return "";
-
-        uint64_t request_hash = hash_function(request_key);
-        auto it = hash_ring.lower_bound(request_hash);
-
-        if (it == hash_ring.end()) {
-            it = hash_ring.begin();  // Wrap around to first server
-        }
-
-        return it->second;
-    }
-
-    void remove_server(const std::string& server_id) {
-        auto it = hash_ring.begin();
-        while (it != hash_ring.end()) {
-            if (it->second == server_id) {
-                it = hash_ring.erase(it);
-            } else {
-                ++it;
-            }
-        }
-    }
-};
-</code></pre>
+        <section aria-labelledby="content-list-heading">
+            <h2 id="content-list-heading">Explore Key Concepts</h2>
+            <ul>
+                <li><a href="content/distributed-load-balancing.html">Distributed Load Balancing</a></li>
+                <li><a href="content/multi-tenant-gpu.html">Multi-tenant GPU Allocation</a></li>
+                <li><a href="content/stateless-compute-storage.html">Stateless Compute & Replicated Storage</a></li>
+                <li><a href="content/observability.html">Observability</a></li>
+                <li><a href="content/security.html">Security and Access Control</a></li>
+            </ul>
         </section>
 
-
-        <p><a href="../index.html">← Back to Home</a></p> <!-- Link back to the main page -->
     </main>
     <footer role="contentinfo">
         <p>© 2025 Klein. All rights reserved.</p>

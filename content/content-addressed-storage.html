@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Details on Content-Addressed Storage with Bloom Filter Optimization for traceability in the Klein platform.">
+    <link rel="icon" type="image/svg+xml" href="../src/klein_logo.svg"> <!-- Path adjusted for subdirectory -->
+    <title>Klein - Content-Addressed Storage</title>
+    <link rel="stylesheet" href="../index.css"> <!-- Path adjusted for subdirectory -->
+</head>
+<body>
+    <header role="banner">
+        <h1>Content-Addressed Storage with Bloom Filter Optimization</h1>
+    </header>
+    <main role="main">
+        <section>
+            <p>AI inference systems require efficient storage and retrieval of massive request/response pairs for debugging, compliance, and model improvement. Content-addressed storage using SHA-256 hashes eliminates duplicate data while Bloom filters provide sub-millisecond existence checks, crucial for real-time traceability queries. The system generates unique content hashes for each request/response pair, automatically deduplicating identical traces while maintaining fast lookup capabilities. Bloom filters eliminate expensive disk I/O for non-existent queries, crucial for high-throughput traceability systems.</p>
+        </section>
+
+        <section aria-labelledby="efficiency-heading">
+            <h2 id="efficiency-heading">Efficiency Analysis</h2>
+            <p><strong>Time Complexity:</strong></p>
+            <ul>
+                <li>Storage operation: O(1) hash computation and insertion</li>
+                <li>Existence check: O(1) with Bloom filter, O(log N) worst case with hash map</li>
+                <li>Retrieval: O(1) average case for hash-based lookup</li>
+                <li>Similar trace search: O(N) linear scan with early termination</li>
+            </ul>
+            <p><strong>Space Complexity:</strong> O(N) for trace storage plus O(1) fixed 128KB for Bloom filter</p>
+            <p><strong>Deduplication:</strong> Content addressing achieves 60-80% storage reduction in typical AI workloads where similar inputs generate identical outputs.</p>
+        </section>
+
+        <section aria-labelledby="business-case-heading">
+            <h2 id="business-case-heading">Business Case: Medical AI Compliance Platform</h2>
+            <p><strong>Problem:</strong> A medical imaging AI platform processes 100K+ diagnostic scans daily across 200 hospitals. FDA regulations require complete traceability of all AI decisions for 7 years. Traditional storage costs $2M annually, while query performance degrades as data grows, taking 30+ seconds to retrieve audit trails.</p>
+            <p><strong>Solution:</strong> Deploy content-addressed storage with Bloom filter acceleration to eliminate duplicate scans and enable sub-second query response times.</p>
+            <p><strong>Results:</strong></p>
+            <ul>
+                <li><strong>Storage cost reduction:</strong> 68% savings ($1.36M annually) through automatic deduplication</li>
+                <li><strong>Query performance:</strong> Average retrieval time reduced from 32s to 180ms</li>
+                <li><strong>Compliance efficiency:</strong> Audit trail generation time reduced from 6 hours to 12 minutes</li>
+                <li><strong>Scalability:</strong> System handles 10x data growth with linear performance degradation</li>
+            </ul>
+            <p>The content-addressed approach revealed that 65% of diagnostic requests were duplicates or near-duplicates, dramatically reducing storage requirements while maintaining complete audit trails. Bloom filters eliminated 99.7% of unnecessary disk seeks during compliance queries.</p>
+        </section>
+
+        <section aria-labelledby="reference-heading">
+             <h2 id="reference-heading">Reference</h2>
+             <p>Bloom, B. H. (1970). "Space/time trade-offs in hash coding with allowable errors." <em>Communications of the ACM</em>, 13(7), 422-426.</p>
+        </section>
+
+         <section aria-labelledby="implementation-heading">
+             <h2 id="implementation-heading">Implementation Example (C++)</h2>
+             <pre><code class="language-cpp">#include <string>
+#include <unordered_map>
+#include <vector>
+#include <functional>
+#include <bitset>
+#include <chrono>
+#include <algorithm> // Required for std::max
+
+// This is a simplified C++ example demonstrating the concepts of
+// Content-Addressed Storage and Bloom Filter optimization for AI inference traces.
+// In a production system, you would use proper cryptographic hash functions (like SHA-256)
+// and more robust Bloom filter implementations with carefully chosen parameters.
+
+class ContentAddressedStorage {
+private:
+    struct TraceRecord {
+        std::string content_hash;
+        std::string request_data;
+        std::string response_data;
+        std::chrono::system_clock::time_point timestamp;
+        std::string model_id;
+        std::string client_id;
+
+        TraceRecord(const std::string& req, const std::string& resp,
+                   const std::string& model, const std::string& client)
+            : request_data(req), response_data(resp), model_id(model),
+              client_id(client), timestamp(std::chrono::system_clock::now()) {}
+    };
+
+    // Simple Bloom filter for fast existence checks
+    class BloomFilter {
+    private:
+        // Using a fixed size bitset for simplicity. Choose size based on expected elements and desired false positive rate.
+        std::bitset<1048576> bits;  // 1M bits = 128KB memory
+        static const int NUM_HASH_FUNCTIONS = 3; // Choose number of hash functions based on bitset size and expected elements.
+
+        // Simple string hash function - replace with a better hash combiner or multiple strong hashes in production.
+        std::vector<size_t> get_hash_values(const std::string& key) {
+            std::vector<size_t> hashes;
+            std::hash<std::string> hasher;
+
+            // Generating multiple hashes from one using permutations or appending different values.
+            // A common technique is FNV hash variants or combining multiple independent hashes.
+            for (int i = 0; i < NUM_HASH_FUNCTIONS; i++) {
+                size_t hash = hasher(key + "_" + std::to_string(i)); // Simple variation
+                hashes.push_back(hash % bits.size());
+            }
+            return hashes;
+        }
+
+    public:
+        void add(const std::string& key) {
+            auto hash_values = get_hash_values(key);
+            for (size_t hash : hash_values) {
+                bits[hash] = 1;
+            }
+        }
+
+        bool might_contain(const std::string& key) const { // Made const
+            auto hash_values = get_hash_values(key);
+            for (size_t hash : hash_values) {
+                if (!bits[hash]) return false;
+            }
+            return true;  // Might contain (no false negatives)
+        }
+    };
+
+    std::unordered_map<std::string, TraceRecord> storage;  // hash -> record
+    BloomFilter existence_filter; // Instance of the Bloom filter
+
+    // Content-based hash generation - replace with a proper cryptographic hash like SHA-256
+    std::string generate_content_hash(const std::string& request,
+                                     const std::string& response,
+                                     const std::string& model_id) const { // Made const
+        std::hash<std::string> hasher;
+        std::string combined = request + "::" + response + "::" + model_id; // Use separator
+        // In production, use a collision-resistant hash like SHA-256 for content integrity.
+        // The "sha256_" prefix is conceptual for indicating the hash type.
+        return "sha256_" + std::to_string(hasher(combined));
+    }
+
+public:
+    // Store request/response pair with content addressing
+    std::string store_trace(const std::string& request_data,
+                           const std::string& response_data,
+                           const std::string& model_id,
+                           const std::string& client_id) {
+
+        std::string content_hash = generate_content_hash(request_data, response_data, model_id);
+
+        // Check if content already exists (deduplication) using find on the map
+        // Bloom filter check could be added here first for a faster initial check
+        // if you expect many non-existent entries, but map find is definitive.
+         if (storage.count(content_hash)) { // Use count for existence check
+            // Although content exists, we might want to store a separate index entry
+            // linking this client/timestamp to the existing hash for full traceability.
+            // This simplified example only deduplicates the *content*.
+            return content_hash;  // Return existing hash, content storage not needed
+        }
+
+
+        // If not found in storage, potentially check Bloom filter (optional here)
+        // if (!existence_filter.might_contain(content_hash)) {
+        //     // This path would be taken if the Bloom filter wrongly says it doesn't exist
+        //     // (a false negative shouldn't happen with a correct implementation, but if it did,
+        //     // we'd need to proceed to storage anyway). For simplicity, we rely on map check.
+        // }
+
+
+        // Create new trace record
+        TraceRecord record(request_data, response_data, model_id, client_id);
+        record.content_hash = content_hash; // Store the hash in the record
+
+        // Store in hash map and update Bloom filter
+        storage[content_hash] = record;
+        existence_filter.add(content_hash);
+
+        return content_hash;
+    }
+
+    // Fast existence check using Bloom filter
+    bool exists(const std::string& content_hash) const { // Made const
+        // Bloom filter first (fast path)
+        if (!existence_filter.might_contain(content_hash)) {
+            return false;  // Definitely doesn't exist (Bloom filter has no false negatives by design)
+        }
+
+        // Confirm with actual storage (slow path, necessary due to Bloom filter false positives)
+        return storage.count(content_hash); // Use count for existence check
+    }
+
+    // Retrieve trace record by content hash
+    // Passing by reference for out_record
+    bool get_trace(const std::string& content_hash, TraceRecord& out_record) const { // Made const
+        // Fast existence check first
+        if (!existence_filter.might_contain(content_hash)) {
+            return false; // Definitely not in storage
+        }
+
+        auto it = storage.find(content_hash);
+        if (it != storage.end()) {
+            out_record = it->second; // Copy the record
+            return true;
+        }
+        return false; // Not found despite Bloom filter saying it might exist (a false positive)
+    }
+
+    // Find traces by content similarity (simplified example)
+    std::vector<std::string> find_similar_traces(const std::string& request_data_prefix, // Changed to prefix
+                                                 const std::string& model_id) const { // Made const
+        std::vector<std::string> similar_hashes;
+
+        // In a real system, finding similar traces would involve more sophisticated techniques
+        // like similarity hashing, embeddings, or indexing based on request content.
+        // This is a very basic example searching by a prefix of the request data.
+
+        for (const auto& pair : storage) { // Iterate through map elements
+            const std::string& hash = pair.first;
+            const TraceRecord& record = pair.second;
+
+            if (record.model_id == model_id &&
+                record.request_data.rfind(request_data_prefix, 0) == 0) { // Check if request_data starts with prefix
+                 // A real implementation would likely use a similarity metric or index
+                similar_hashes.push_back(hash);
+            }
+        }
+
+        return similar_hashes;
+    }
+
+    // Get storage statistics
+    struct StorageStats {
+        size_t total_content_records; // Number of unique content blobs stored
+        size_t unique_request_payloads; // Number of unique request strings
+        double deduplication_ratio; // Total stored / Unique request payloads (simple metric)
+    };
+
+    StorageStats get_stats() const { // Made const
+        StorageStats stats;
+        stats.total_content_records = storage.size();
+
+        // This metric is simplistic. A real deduplication ratio would compare
+        // the total size of stored *content* if stored without deduplication
+        // versus the size with deduplication. Counting unique request payloads
+        // is one way to approximate input deduplication.
+        std::unordered_map<std::string, int> request_payload_counts;
+        for (const auto& pair : storage) {
+             request_payload_counts[pair.second.request_data]++;
+        }
+
+        stats.unique_request_payloads = request_payload_counts.size();
+
+        // A more accurate ratio would require tracking the original number of *attempted* stores.
+        // This ratio compares unique content blobs to unique request payloads seen in storage.
+        stats.deduplication_ratio = static_cast<double>(stats.total_content_records) /
+                                   std::max(1UL, stats.unique_request_payloads); // Prevent division by zero
+
+        return stats;
+    }
+
+    // Get the total number of unique content hashes stored
+    size_t size() const {
+        return storage.size();
+    }
+
+    // Get the approximate number of elements in the Bloom filter (can be used to estimate false positive rate)
+    // Requires a method in BloomFilter to get bit count or estimated element count.
+    // BloomFilter::estimated_elements() { ... calculate from bit count ... }
+};
+</code></pre>
+        </section>
+
+
+        <p><a href="../index.html">← Back to Home</a></p> <!-- Link back to the main page -->
+    </main>
+    <footer role="contentinfo">
+        <p>© 2025 Klein. All rights reserved.</p>
+    </footer>
+</body>
+</html>

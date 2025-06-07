@@ -18,6 +18,11 @@
             <p>In AI inference systems, high-throughput input/output trace logging is crucial for debugging, auditability, and model version rollback. Traditional B-tree-based stores suffer from write amplification under heavy logging. LSM Trees are designed for write-intensive workloads, batching writes in memory and flushing them to disk in sorted order. Compaction merges sorted runs, optimizing both read and write paths over time. A Bloom filter is used per SSTable to accelerate point lookups, avoiding unnecessary disk seeks.</p>
         </section>
 
+        <figure>
+            <img src="../src/LSM.png" alt="Diagram illustrating Consistent Hashing concept">
+            <figcaption>Conceptual diagram of Consistent Hashing.</figcaption>
+        </figure>
+
         <section aria-labelledby="efficiency-heading">
             <h2 id="efficiency-heading">Efficiency Analysis</h2>
             <p><strong>Time Complexity:</strong></p>

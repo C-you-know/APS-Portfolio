@@ -13,27 +13,16 @@
         <h1>Dynamic Load Prediction (AI + Algo Hybrid)</h1>
     </header>
     <main role="main">
-        <section aria-labelledby="introduction-heading">
-            <h2 id="introduction-heading">Introduction</h2>
-            <p>We are building a globally distributed AI inference platform that serves machine learning models with high availability, low latency, and automatic scalability. It supports multi-tenant deployments, dynamically allocating GPUs based on model demand. A hierarchical load balancing system routes requests from users to regions, then to optimal GPU nodes. All inference inputs and outputs are stored for traceability, and stateless compute with replicated storage ensures fault tolerance. The platform handles diverse input types (text, images, video, audio, time series) and scales horizontally and vertically to match workload fluctuations.</p>
-        </section>
-
-        <section aria-labelledby="system-properties-heading">
-            <h2 id="system-properties-heading">System Properties</h2>
-            <ul>
-                <li>Distributed Worldwide Access</li>
-                <li>Highly Available</li>
-                <li>Horizontally and Vertically Scalable</li>
-                <li>Low Latency</li>
-                <li>Observability</li>
-                <li>Security and Access Control</li>
-            </ul>
-        </section>
 
         <section aria-labelledby="problem-heading">
             <h2 id="problem-heading">Problem</h2>
             <p>In a globally distributed inference system, request traffic fluctuates due to time zones, user behavior, and external events. Predicting load is essential to pre-scale resources (like GPUs) before spikes happen — avoiding cold starts and ensuring low latency.</p>
         </section>
+
+        <figure>
+            <img src="../src/kalman.jpg" alt="Diagram illustrating Consistent Hashing concept">
+            <figcaption>Conceptual diagram of Consistent Hashing.</figcaption>
+        </figure>
 
         <section aria-labelledby="solution-heading">
             <h2 id="solution-heading">Solution</h2>
@@ -182,15 +171,6 @@ int main() {
 </code></pre>
         </section>
 
-        <section aria-labelledby="fits-system-heading">
-            <h2 id="fits-system-heading">Where It Fits in Your System</h2>
-            <p>This load predictor can:</p>
-            <ul>
-                <li>Feed into your **GPU scheduler** to warm up instances before demand spikes</li>
-                <li>Help the **global load balancer** decide regional traffic redirection</li>
-                <li>Enable **smart auto-scaling triggers**</li>
-            </ul>
-        </section>
 
         <section aria-labelledby="business-impact-heading">
             <h2 id="business-impact-heading">Business Impact (Realistic Example)</h2>
@@ -202,11 +182,7 @@ int main() {
             </ul>
         </section>
 
-        <section aria-labelledby="further-exploration-heading">
-            <h2 id="further-exploration-heading">Further Exploration</h2>
-            <p>Would you like the Kalman version for multiple variables or deeper smoothing control?</p>
-        </section>
-
+        
 
         <p><a href="../index.html">← Back to Home</a></p> <!-- Link back to the main page -->
     </main>

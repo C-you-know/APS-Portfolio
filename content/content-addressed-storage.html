@@ -17,6 +17,11 @@
             <p>AI inference systems require efficient storage and retrieval of massive request/response pairs for debugging, compliance, and model improvement. Content-addressed storage using SHA-256 hashes eliminates duplicate data while Bloom filters provide sub-millisecond existence checks, crucial for real-time traceability queries. The system generates unique content hashes for each request/response pair, automatically deduplicating identical traces while maintaining fast lookup capabilities. Bloom filters eliminate expensive disk I/O for non-existent queries, crucial for high-throughput traceability systems.</p>
         </section>
 
+        <figure>
+            <img src="../src/bloom_filter.jpg" alt="Diagram illustrating Consistent Hashing concept">
+            <figcaption>Conceptual diagram of Consistent Hashing.</figcaption>
+        </figure>
+
         <section aria-labelledby="efficiency-heading">
             <h2 id="efficiency-heading">Efficiency Analysis</h2>
             <p><strong>Time Complexity:</strong></p>
@@ -51,13 +56,7 @@
 
          <section aria-labelledby="implementation-heading">
              <h2 id="implementation-heading">Implementation Example (C++)</h2>
-             <pre><code class="language-cpp">#include <string>
-#include <unordered_map>
-#include <vector>
-#include <functional>
-#include <bitset>
-#include <chrono>
-#include <algorithm> // Required for std::max
+             <pre><code class="language-cpp">
 
 // This is a simplified C++ example demonstrating the concepts of
 // Content-Addressed Storage and Bloom Filter optimization for AI inference traces.

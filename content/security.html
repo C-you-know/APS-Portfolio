@@ -17,6 +17,16 @@
             <p>Multi-tenant AI systems require cryptographic isolation preventing data leakage between tenants while maintaining sub-millisecond access control decisions. Access Control Graphs enable O(1) permission resolution through BFS traversal, while RBAC hierarchies enforce clearance-based data boundaries. Attribute-Based Encryption provides fine-grained access control based on tenant attributes, with quantum-resistant Kyber encryption protecting against future cryptographic attacks.</p>
         </section>
 
+        <figure>
+            <img src="../src/kyber.png" alt="Diagram illustrating Consistent Hashing concept">
+            <figcaption>Conceptual diagram of Consistent Hashing.</figcaption>
+        </figure>
+        <figure>
+            <img src="../src/RBAC.png" alt="Diagram illustrating Consistent Hashing concept">
+            <figcaption>Conceptual diagram of Consistent Hashing.</figcaption>
+        </figure>
+
+
         <section aria-labelledby="efficiency-heading">
             <h2 id="efficiency-heading">Efficiency Analysis</h2>
             <p><strong>Time Complexity:</strong></p>
@@ -63,27 +73,7 @@
          <section aria-labelledby="implementation-heading">
              <h2 id="implementation-heading">Implementation Example (C++)</h2>
              <p>This C++ code provides a conceptual outline of the security and multi-tenancy system components discussed, including simplified examples of Access Control Graphs, RBAC, Attribute-Based Encryption, and Quantum-Resistant Crypto (Kyber-like). <strong>Note: The cryptographic implementations here are highly simplified for illustrative purposes and should NOT be used in production.</strong> A real-world system requires rigorously tested and standardized cryptographic libraries.</p>
-             <pre><code class="language-cpp">#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-#include <queue>
-#include <mutex>
-#include <atomic>
-#include <chrono>
-#include <bitset> // Not used in this specific code block, but might be related to ABE or other parts
-#include <algorithm> // Required for std::min, std::max, etc.
-#include <random> // Required for Kyber simplified example
-#include <functional> // Required for std::hash
-#include <stdexcept> // For exceptions if needed (not strictly used in this simplified code)
-
-
-// This C++ code provides a conceptual outline of the security and multi-tenancy system components.
-// The implementations, particularly the cryptographic parts (ABE, Kyber), are highly simplified
-// for illustrative purposes ONLY and should NOT be used in production.
-// A real-world system requires rigorously tested and standardized libraries.
-
-
+             <pre><code class="language-cpp">
 class SecurityMultiTenancySystem {
 private:
     // Access Control Graph for permission resolution

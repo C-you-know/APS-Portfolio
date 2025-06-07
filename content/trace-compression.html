@@ -30,6 +30,11 @@
             <p><strong>Compression Performance:</strong> 3-8x compression ratios on JSON traces, 2-5x on mixed text/binary data</p>
         </section>
 
+        <figure>
+            <img src="../src/zstd.png" alt="Diagram illustrating Consistent Hashing concept">
+            <figcaption>Conceptual diagram of Consistent Hashing.</figcaption>
+        </figure>
+
         <section aria-labelledby="business-case-heading">
             <h2 id="business-case-heading">Business Case: E-commerce AI Recommendation Engine</h2>
             <p><strong>Problem:</strong> Major e-commerce platform processes 50M AI recommendations daily, generating 2TB of trace logs (user queries, item embeddings, recommendation scores, A/B test metadata). Storage costs reached $180K annually, with slow trace retrieval hampering debugging of recommendation quality issues.</p>
@@ -78,27 +83,7 @@
          <section aria-labelledby="implementation-heading">
              <h2 id="implementation-heading">Implementation Example (C++)</h2>
               <p>This C++ code provides a conceptual, simplified example illustrating some principles behind dictionary-based and structured compression for trace data, inspired by algorithms like Zstandard. <strong>Note: This is not a production-ready compression library.</strong> Real-world implementations require highly optimized algorithms, extensive testing, and careful handling of edge cases for performance and correctness.</p>
-             <pre><code class="language-cpp">#include <string>
-#include <vector>
-#include <unordered_map>
-#include <queue>
-#include <mutex>
-#include <atomic>
-#include <chrono>
-#include <algorithm>
-#include <memory>
-#include <thread>
-#include <condition_variable>
-#include <bitset> // Not strictly used in the provided code, but potentially relevant
-#include <functional> // Required for std::hash
-#include <cstring> // Required for std::memcpy
-
-// This C++ code provides a conceptual, simplified example illustrating some principles
-// behind dictionary-based and structured compression for trace data, inspired by algorithms
-// like Zstandard.
-// WARNING: This is NOT a production-ready compression library. Real-world implementations
-// require highly optimized algorithms, extensive testing, and careful handling of edge cases
-// for performance and correctness.
+             <pre><code class="language-cpp">
 
 class HighPerformanceTraceCompression {
 private:

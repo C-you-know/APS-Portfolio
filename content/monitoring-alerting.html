@@ -17,6 +17,11 @@
             <p>Real-time anomaly detection across distributed AI systems requires sub-millisecond response times while processing millions of metrics. Count-Min sketches provide approximate frequency counting with fixed 32KB memory per sketch, enabling detection of API abuse and DDoS patterns. Sliding window aggregation maintains statistical bounds for Z-score and MAD anomaly detection, while dynamic thresholds automatically adapt to traffic seasonality.</p>
         </section>
 
+        <figure>
+            <img src="../src/count_min_sketch.png" alt="Diagram illustrating Consistent Hashing concept">
+            <figcaption>Conceptual diagram of Consistent Hashing.</figcaption>
+        </figure>
+
         <section aria-labelledby="efficiency-heading">
             <h2 id="efficiency-heading">Efficiency Analysis</h2>
             <p><strong>Time Complexity:</strong></p>
@@ -52,18 +57,7 @@
 
          <section aria-labelledby="implementation-heading">
              <h2 id="implementation-heading">Implementation Example (C++)</h2>
-             <pre><code class="language-cpp">#include <string>
-#include <unordered_map>
-#include <vector>
-#include <queue>
-#include <chrono>
-#include <atomic>
-#include <mutex>
-#include <cmath>
-#include <algorithm>
-#include <functional> // Required for std::hash
-#include <limits> // Required for UINT64_MAX
-
+             <pre><code class="language-cpp">
 class MonitoringAlertingSystem {
 private:
     // Count-Min Sketch for frequency approximation

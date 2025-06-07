@@ -17,6 +17,11 @@
             <p>AI model versioning requires tracking complex dependency graphs while enabling instant rollbacks and maintaining audit compliance. Merkle trees provide cryptographic integrity verification and efficient delta computation, while immutable logs ensure complete traceability of model evolution across distributed deployments. The system uses Merkle trees to create tamper-evident version fingerprints while maintaining parent-child relationships between model versions. Each commit generates a cryptographic hash that enables instant integrity verification and efficient delta computation across distributed deployments.</p>
         </section>
 
+        <figure>
+            <img src="../src/merkel_tree.png" alt="Diagram illustrating Consistent Hashing concept">
+            <figcaption>Conceptual diagram of Consistent Hashing.</figcaption>
+        </figure>
+
         <section aria-labelledby="efficiency-heading">
             <h2 id="efficiency-heading">Efficiency Analysis</h2>
             <p><strong>Time Complexity:</strong></p>
